@@ -1,0 +1,35 @@
+require 'yaml'
+
+nodes_config = YAML.load_file('nodes.yaml')['nodes']
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+config.vm.synced_folder '.', '/vagrant', disabled: true
+config.ssh.private_key_path = "/path/to/keyfile"
+config.ssh.insert_key = false
+
+nodes_config.each do |node|
+
+ config.vm.define node[1][:node_name] do |web|
+    web.vm.box = "dummy"
+    config.vm.box = "dummy"
+    config.vm.provider :openstack do |os|
+    os.username     = "xxx"
+    os.api_key      = "xxx"
+    os.flavor       = "m1.medium"
+    os.image        = node[1][:os]
+    os.endpoint     = "http://xxx.xxx"
+    os.keypair_name = "xxx"
+    os.floating_ip  = :auto
+    os.floating_ip_pool   = "ext-net"
+    os.ssh_username = "ubuntu"
+    os.network      = "xxx"
+    os.server_name  = node[1][:node_name]
+    os.public_key_path    =  "/path/to/public/keyfile"
+  end
+  end
+ end
+end
+
